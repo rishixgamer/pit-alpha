@@ -3,6 +3,14 @@
 All notable changes to QuantCheck are recorded here. This project follows
 [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.0.0rc1]
+
+* Added timestamp-level `asof_align`, `PurgedWalkForwardSplit`, and
+  `evaluate_signals`, plus fold-local wrappers and an auditable Sharpe check.
+* Added the `pit-alpha` CLI with a seeded Parquet example, versioned reports,
+  and installed-candidate qualification. See the
+  [release notes](docs/RELEASE_NOTES_1.0.md).
+
 ## [0.2.0.dev0] — Unreleased
 
 ### Added

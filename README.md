@@ -107,13 +107,19 @@ uv run --group dashboard streamlit run dashboard/app.py -- --artifacts /tmp/qc-s
 Every ordinary test and quick-start command runs offline. None of them makes a
 live network request.
 
+## Run timestamp-level factor research
+
+The `1.0.0rc1` candidate includes a seeded market-data example and
+`pit-alpha run --config path.yaml`, which produces JSON and Markdown with
+walk-forward metrics and selection evidence. See the
+[pit-alpha quickstart](docs/PIT_ALPHA.md) and
+[v1.0 release notes](docs/RELEASE_NOTES_1.0.md).
+
 ## Reproduce the frozen baseline
 
 The held-out baseline lives in the immutable
 [`v0.1.0` release](https://github.com/rishixgamer/quantcheck/releases/tag/v0.1.0).
-The complete procedure is in [Reproducibility](docs/REPRODUCIBILITY.md). The
-current worktree is `0.2.0.dev0`, which is development state and carries no
-release claim of its own.
+The complete procedure is in [Reproducibility](docs/REPRODUCIBILITY.md).
 
 ```bash
 uv sync --frozen --all-groups

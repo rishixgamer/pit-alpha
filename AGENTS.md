@@ -14,6 +14,14 @@ Keep the implementation and public evidence within this scope.
 - Day-level financial availability and end-of-day research decisions for v0.1
 - `Decimal` for financial values, canonical JSON strings, and SHA-256 hashes
 
+## v1.0 pit-alpha scope
+
+The additive `quantcheck.pit_alpha` workflow uses timestamp-level availability,
+Polars/Parquet panels, fold-local wrappers and floating-point factor statistics.
+Keep it within the [pit-alpha contract](docs/PIT_ALPHA.md). The day-level audit
+and its Decimal, detector isolation, serialization, and frozen evidence
+contracts remain applicable to the audit surface.
+
 ## Scientific invariants
 
 1. Detectors receive only a sanitized `AuditInputSnapshot`, never manifests,

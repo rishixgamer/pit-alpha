@@ -2,7 +2,7 @@
 
 # Both external images are immutable OCI-index digests.  Refresh them only via
 # the documented dependency-update process and with a vulnerability scan.
-ARG PYTHON_IMAGE=python:3.12.13-slim-bookworm@sha256:4766d8b510c428e595d74b9cc5bbb2fae8e26316fffb4adc89908d79aacd58a2
+ARG PYTHON_IMAGE=python:3.12.16-slim-bookworm@sha256:935c3c5b12357a7e10caa9c1e6ca5692344d97cf229832ef584be2cec9fc03df
 ARG UV_IMAGE=ghcr.io/astral-sh/uv:0.12.2@sha256:069a51314a7bb6031777a9273205fe1b0b19e914ef418207d1338b268df641dd
 
 FROM ${UV_IMAGE} AS uv
@@ -32,7 +32,7 @@ FROM ${PYTHON_IMAGE} AS runtime
 
 ARG SOURCE_DATE_EPOCH=0
 ARG VCS_REF=unknown
-ARG QUANTCHECK_VERSION=0.2.0.dev0
+ARG QUANTCHECK_VERSION=1.0.0rc1
 LABEL org.opencontainers.image.title="QuantCheck self-hosted audit runner" \
       org.opencontainers.image.description="Offline, single-tenant financial-data audit batch image" \
       org.opencontainers.image.licenses="MIT" \

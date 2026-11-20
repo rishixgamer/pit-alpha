@@ -1,12 +1,13 @@
 # QuantCheck status
 
-Updated 2026-08-24 for the curated public tree.
+Day-level audit evidence below was curated on 2026-08-24.
 
 ## Current classification
 
-QuantCheck is a deterministic research-integrity framework, not a trading
-system. The current package is `0.2.0.dev0`. Its engineering state is a
-design-partner beta candidate; it is **not production-ready**.
+QuantCheck is a deterministic research-integrity framework. Package
+`1.0.0rc1` adds the [pit-alpha factor workflow](PIT_ALPHA.md) and its
+[synthetic qualification](RELEASE_NOTES_1.0.md). The day-level audit evidence
+below describes the preceding `0.2.0.dev0` design-partner beta candidate.
 
 ## Verified capabilities
 
