@@ -4,6 +4,7 @@ from __future__ import annotations
 
 import hashlib
 import re
+import subprocess
 from pathlib import Path
 
 import pytest
@@ -49,13 +50,18 @@ def test_beta_freeze_identity_source_hashes_and_claim_boundaries() -> None:
     assert freeze["package_version"] == "0.2.0.dev0"
     source = freeze["source"]
     assert isinstance(source, dict)
+    revision = source["base_commit"]
+    assert isinstance(revision, str) and re.fullmatch(r"[0-9a-f]{40}", revision)
     files = source["files"]
     assert isinstance(files, list)
     for entry in files:
         assert isinstance(entry, dict)
         path = entry["path"]
         assert isinstance(path, str) and not path.startswith("/") and ".." not in path.split("/")
-        assert entry["sha256"] == sha256_hex_of_bytes((REPO_ROOT / path).read_bytes())
+        frozen_content = subprocess.check_output(
+            ["git", "show", f"{revision}:{path}"], cwd=REPO_ROOT
+        )
+        assert entry["sha256"] == sha256_hex_of_bytes(frozen_content)
     assert source["source_tree_sha256"] == sha256_hex_of_bytes(canonical_json_bytes(files))
     claims = freeze["claims"]
     assert claims == {

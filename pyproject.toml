@@ -1,10 +1,10 @@
 [build-system]
-requires = ["hatchling"]
+requires = ["hatchling==1.29.0"]
 build-backend = "hatchling.build"
 
 [project]
 name = "quantcheck"
-version = "0.2.0.dev0"
+version = "1.0.0rc1"
 description = "Deterministic point-in-time financial data reliability auditing framework."
 readme = "README.md"
 requires-python = ">=3.12,<3.13"
@@ -13,6 +13,9 @@ license-files = ["LICENSE"]
 authors = [{ name = "Rishi Haldar" }]
 
 dependencies = [
+    "numpy>=2,<3",
+    "polars>=1.32,<2",
+    "pyyaml>=6,<7",
     "httpx>=0.28,<1",
     "pyarrow>=24,<25",
     "pydantic>=2,<3",
@@ -26,9 +29,12 @@ Issues = "https://github.com/rishixgamer/quantcheck/issues"
 
 [project.scripts]
 quantcheck = "quantcheck.cli:main"
+pit-alpha = "quantcheck.pit_alpha.cli:main"
 
 [dependency-groups]
 dev = [
+    "hatchling==1.29.0",
+    "types-pyyaml>=6,<7",
     "ruff>=0.14,<0.15",
     "mypy>=1.14,<2",
     "pytest>=8,<9",

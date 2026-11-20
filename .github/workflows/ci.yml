@@ -38,6 +38,9 @@ jobs:
       - name: MyPy
         run: uv run mypy src tests
 
+      - name: Time pit-alpha unit and canary suite
+        run: uv run python -m scripts.qualify_pit_alpha test --output dist/pit-alpha-tests.json
+
       - name: pytest
         run: uv run pytest
 
@@ -45,4 +48,25 @@ jobs:
         run: uv run quantcheck --help
 
       - name: Build wheel and sdist
-        run: uv build --offline
+        run: |
+          export SOURCE_DATE_EPOCH="$(git log -1 --format=%ct)"
+          uv build --offline --no-build-isolation
+          uv run python scripts/check_distribution_contents.py dist
+
+      - name: Qualify the installed release candidate
+        run: |
+          candidate_env="${RUNNER_TEMP}/quantcheck-candidate"
+          uv venv --python 3.12 "$candidate_env"
+          uv export --locked --no-dev --no-emit-project --format requirements-txt > "$RUNNER_TEMP/quantcheck-requirements.txt"
+          uv pip sync --require-hashes --python "$candidate_env/bin/python" "$RUNNER_TEMP/quantcheck-requirements.txt"
+          uv pip install --python "$candidate_env/bin/python" --no-deps --offline dist/quantcheck-*.whl
+          uv run python -m scripts.qualify_pit_alpha package --python "$candidate_env/bin/python" --output dist
+          (cd dist && sha256sum *.whl *.tar.gz *.json *.md > SHA256SUMS)
+
+      - name: Publish qualified package and evidence
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4.6.2
+        with:
+          name: quantcheck-pit-alpha-candidate
+          path: dist/
+          if-no-files-found: error
+          retention-days: 90

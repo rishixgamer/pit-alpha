@@ -5,7 +5,7 @@ import quantcheck
 
 def test_package_version_is_a_non_empty_string() -> None:
     assert isinstance(quantcheck.__version__, str)
-    assert quantcheck.__version__ == "0.2.0.dev0"
+    assert quantcheck.__version__ == "1.0.0rc1"
 
 
 def test_runtime_metadata_declares_pyarrow_for_supported_columnar_inputs() -> None:

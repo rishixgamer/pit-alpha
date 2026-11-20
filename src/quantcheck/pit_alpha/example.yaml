@@ -1,0 +1,49 @@
+schema_version: 1
+inputs:
+  observations: observations.parquet
+  decisions: decisions.parquet
+  observation_columns: [close, factor, unobserved]
+  price_column: close
+windows:
+  train_seconds: 5184000
+  validation_seconds: 2592000
+  oos_seconds: 2592000
+  step_seconds: 2592000
+  embargo_seconds: 86400
+  mode: rolling
+candidates:
+  - name: factor_baseline
+    wrapper: baseline
+    features: [factor]
+    missing: drop
+  - name: ridge_factor
+    wrapper: ridge
+    features: [factor, price_return]
+    missing: train_median
+    ridge_penalty: 1.0
+  - name: momentum_baseline
+    wrapper: baseline
+    features: [price_return]
+    missing: drop
+  - name: duplicate_factor
+    wrapper: baseline
+    features: [factor]
+    missing: drop
+  - name: missing_baseline
+    wrapper: baseline
+    features: [unobserved]
+    missing: drop
+metrics:
+  periods_per_year: 252
+  cost_bps: 1.0
+  volatility_lookback: 5
+  low_quantile: 0.3333333333333333
+  high_quantile: 0.6666666666666666
+selection:
+  rule: validation_sharpe
+  bootstrap_samples: 1999
+  block_length: 5
+  min_holdout_periods: 40
+  alpha: 0.05
+  seed: 812
+output_directory: reports
