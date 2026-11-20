@@ -1,4 +1,4 @@
-# QuantCheck pit-alpha
+# pit-alpha
 
 Pit-alpha runs timestamped factor research on explicitly available market data.
 It uses Polars and Parquet, fold-local model fitting, and an auditable separation

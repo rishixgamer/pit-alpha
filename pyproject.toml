@@ -5,7 +5,7 @@ build-backend = "hatchling.build"
 [project]
 name = "quantcheck"
 version = "1.0.0rc1"
-description = "Deterministic point-in-time financial data reliability auditing framework."
+description = "Point-in-time factor research and financial data auditing."
 readme = "README.md"
 requires-python = ">=3.12,<3.13"
 license = "MIT"
@@ -23,9 +23,9 @@ dependencies = [
 ]
 
 [project.urls]
-Repository = "https://github.com/rishixgamer/quantcheck"
-Documentation = "https://github.com/rishixgamer/quantcheck/tree/main/docs"
-Issues = "https://github.com/rishixgamer/quantcheck/issues"
+Repository = "https://github.com/rishixgamer/pit-alpha"
+Documentation = "https://github.com/rishixgamer/pit-alpha/blob/main/docs/PIT_ALPHA.md"
+Issues = "https://github.com/rishixgamer/pit-alpha/issues"
 
 [project.scripts]
 quantcheck = "quantcheck.cli:main"

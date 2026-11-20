@@ -1,188 +1,41 @@
-# QuantCheck
+# pit-alpha
 
-[![CI](https://github.com/rishixgamer/quantcheck/actions/workflows/ci.yml/badge.svg)](https://github.com/rishixgamer/quantcheck/actions/workflows/ci.yml)
-[![Security](https://github.com/rishixgamer/quantcheck/actions/workflows/security.yml/badge.svg)](https://github.com/rishixgamer/quantcheck/actions/workflows/security.yml)
-[![Release v0.1.0](https://img.shields.io/github/v/release/rishixgamer/quantcheck?display_name=tag&sort=semver)](https://github.com/rishixgamer/quantcheck/releases/tag/v0.1.0)
+**Test your signal with the data you actually had.** A point-in-time factor research engine with purged walk-forward validation, fold-local fitting, and an auditable post-selection Sharpe check.
 
-A filing can become public on May 10 even though its quarter ended on March 31.
-If a dataset labels that value as available on March 31, a mathematically
-correct calculation can still run on a historical state that never existed.
+[Try the example](#quickstart) · [Data contract, CLI, and Python API](docs/PIT_ALPHA.md) · [Candidate benchmark, reports, and wheel](https://github.com/rishixgamer/pit-alpha/actions/runs/44683709466) · [Project site](https://rishixgamer.github.io/pit-alpha/)
 
-QuantCheck is a deterministic Python framework for testing whether timestamp
-leakage, unit drift, duplicate observations, or revision overwrites can
-manufacture a misleading research result. It is a research-integrity tool
-rather than a trading system.
+![pit-alpha. Diagram of staggered training, validation, and out-of-sample windows with embargo gaps.](docs/assets/pit-alpha-cover.svg)
 
-[Demo](#demo) · [Quick start](#quick-start) · [Benchmark](docs/FINAL_BENCHMARK_RESULTS.md) · [Evidence archive](evidence/) · [Research](#research)
+## Quickstart
 
-![The future arrives early: a corrupted availability date makes a May 10 filing visible to an April 15 research decision.](docs/assets/quantcheck-hero-timeline.svg)
+Python 3.12 · uv · Polars/Parquet input.
 
-QuantCheck keeps period, filing, availability, research as-of, and runtime
-dates distinct. The v0.1 visibility contract is deliberately narrow and
-day-level:
-
-```text
-visible ⇔ available_on <= as_of_date
-```
-
-## How it works
-
-The design constraint is that a detector must never see the answer key. Truth
-about an injected fault stays private until findings are already final.
-
-1. Build a clean point-in-time snapshot.
-2. Inject one deterministic, configured fault and keep its truth private.
-3. Sanitize the corrupted snapshot into an `AuditInputSnapshot`.
-4. Run detectors without the manifest, clean values, target IDs, seed, or injector metadata.
-5. Finalize findings, then score them against the private manifest.
-6. Compare one controlled research output across clean, corrupted, and replayed states.
-
-![Manifest-blind detector path with private scoring downstream of finalized findings.](docs/assets/quantcheck-architecture.svg)
-
-The public presentation layer reads public artifacts only. It does not rerun
-scientific logic or require the private artifact tree.
-
-## Controlled fault families
-
-The frozen v0.1 benchmark covers one narrow subtype per family. Each is a
-controlled contract, scoped to the question in the right-hand column, rather
-than general timestamp, anomaly, deduplication, entity-resolution, or
-restatement detection.
-
-| Family | Subtype | Detector question |
-| --- | --- | --- |
-| Look-Ahead Timestamp | `period_end_substitution` | Did a period-end date make a fact visible before filing? |
-| Unit Drift | `value_scaled_unit_unchanged` | Is there a scale discontinuity in an exact comparable series? |
-| Duplicate Observations | `exact_occurrence_copy` | Does one exact public fingerprint occur more than once? |
-| Revision Overwrite | `later_vintage_in_earlier_state` | Does an earlier state contain a later declared revision? |
-
-## Evidence at a glance
-
-The immutable v0.1 controlled benchmark has 124 configured cases: 94
-successful, 30 structural no-target, and 0 incomplete. Among successful scored
-cases it recorded 130 injected faults, 130 exact matches, 78 strict
-cross-detector false-positive findings, precision 0.625, recall 1.000, and F1
-0.769.
-
-![Frozen v0.1 case and finding accounting: 124 configured, 94 successful, 30 structural no-target.](docs/assets/quantcheck-benchmark-v01.svg)
-
-These are synthetic fixture measurements. They characterise the framework on
-its reviewed fixture and say nothing about production performance. The numbers
-above are read back from the [canonical aggregate report](evidence/v0_1_release/aggregate_report.json);
-the [benchmark summary](docs/FINAL_BENCHMARK_RESULTS.md) walks through where
-every false positive comes from and why three profile/severity cells have no
-eligible target at all.
-
-Two smaller studies sit alongside it, and neither one generalises the
-benchmark:
-
-- The observational SEC study processed 472 selected observations from five
-  issuers and emitted no findings. Only Exact Duplicate had applicable
-  opportunities. It shows that the public-source pipeline runs end to end
-  under real constraints, which is a much narrower claim than natural-error
-  discovery or broad detector validation.
-- The SEC-derived adversarial study manufactured 120 faults on preserved SEC
-  observations. Those 120 faults were injected by design, so they are evidence
-  about detector behaviour on real-shaped data rather than a count of natural
-  SEC defects.
-
-## Quick start
-
-Requires Python 3.12 and [`uv`](https://docs.astral.sh/uv/).
-
-```bash
+```sh
+git clone https://github.com/rishixgamer/pit-alpha.git
+cd pit-alpha
 uv sync --frozen --all-groups
-uv run quantcheck benchmark smoke --output /tmp/qc-smoke
-uv run python scripts/render_html_summary.py /tmp/qc-smoke \
-  --output /tmp/qc-smoke/summary.html
+uv run pit-alpha example --directory ./example-run
+uv run pit-alpha run --config ./example-run/example.yaml
 ```
 
-The smoke path runs 12 deterministic offline cases. For the read-only
-dashboard:
+The seeded example writes Markdown and JSON reports to `example-run/reports` with fold-by-fold metrics, regime breakdowns, and selection evidence.
 
-```bash
-uv run --group dashboard streamlit run dashboard/app.py -- --artifacts /tmp/qc-smoke
-```
+## What you can do
 
-Every ordinary test and quick-start command runs offline. None of them makes a
-live network request.
+- **Align.** Join Parquet observations by symbol and timestamp. Only revisions available at the decision time can enter features.
+- **Validate.** Purge overlapping labels, enforce an embargo, and fit preprocessing and models inside each fold. A future-price canary exercises the full path.
+- **Evaluate.** Inspect IC, Rank IC, ICIR, Sharpe, drawdown, turnover, and volatility regimes. Review the candidate search and adjusted holdout Sharpe check.
 
-## Run timestamp-level factor research
+## Reproducible evidence
 
-The `1.0.0rc1` candidate includes a seeded market-data example and
-`pit-alpha run --config path.yaml`, which produces JSON and Markdown with
-walk-forward metrics and selection evidence. See the
-[pit-alpha quickstart](docs/PIT_ALPHA.md) and
-[v1.0 release notes](docs/RELEASE_NOTES_1.0.md).
+The v1.0.0rc1 reference run completed in **1.17 s at 156 MiB peak RSS** on Linux CI. It processed 5,784 rows per input table, 24 synthetic symbols, five trials, and five out-of-sample folds. The [candidate run](https://github.com/rishixgamer/pit-alpha/actions/runs/44683709466) includes the benchmark record, both reports, and install artifacts. See the [merge-commit CI](https://github.com/rishixgamer/pit-alpha/actions/runs/44684282673) and [Security run](https://github.com/rishixgamer/pit-alpha/actions/runs/44684282709) for verification of the merged implementation.
 
-## Reproduce the frozen baseline
+## QuantCheck research archive
 
-The held-out baseline lives in the immutable
-[`v0.1.0` release](https://github.com/rishixgamer/quantcheck/releases/tag/v0.1.0).
-The complete procedure is in [Reproducibility](docs/REPRODUCIBILITY.md).
+`pit-alpha` grew out of QuantCheck. The day-level data audit remains available as `quantcheck`. The distribution is still `quantcheck` and exposes `asof_align`, `PurgedWalkForwardSplit`, and `evaluate_signals` under `quantcheck.pit_alpha`. See the [original audit quickstart, frozen benchmark, and evidence](docs/QUANTCHECK.md).
 
-```bash
-uv sync --frozen --all-groups
-uv run python scripts/release_freeze.py --check
-uv run python scripts/run_release_benchmark.py --output release_evidence/final
-uv run python scripts/verify_release_evidence.py \
-  --source release_evidence/final \
-  --public-only release_evidence/public_only \
-  --html release_evidence/public_only/summary.html
-```
+---
 
-The freeze check has to pass before the benchmark will dispatch a single case.
+[v1.0 release candidate](docs/RELEASE_NOTES_1.0.md) · [MIT License](LICENSE) · [Issues](https://github.com/rishixgamer/pit-alpha/issues)
 
-## Demo
-
-Review the [production notes](video/PRODUCTION_PACKAGE.md). The immutable
-release-hosted narrated demo is available as the
-[QuantCheck_demo.mp4 release asset](https://github.com/rishixgamer/quantcheck/releases/download/portfolio-evidence-2026-08-24/QuantCheck_demo.mp4).
-The accompanying [real-data evidence archive](https://github.com/rishixgamer/quantcheck/releases/download/portfolio-evidence-2026-08-24/quantcheck-real-data-evidence-2026-08-13.tar.gz)
-contains the raw study payloads that are deliberately kept out of this tip.
-
-## My role
-
-I framed the problem, defined the scientific contracts and evidence
-boundaries, set the verification gates, and made the final publication calls.
-Implementation used AI-assisted development under acceptance criteria, tests,
-and review that I wrote and enforced, so I am not claiming that every line was
-typed by hand. What the repository actually contributes is the
-contract-and-verification design: results that came out inconvenient are still
-in the evidence record, unedited.
-
-## Limitations
-
-The primary benchmark is synthetic and fixture-bounded. The observational SEC
-run has no ground truth, and only one detector there has a nonzero opportunity
-denominator. The adversarial SEC-derived study injects manufactured faults into
-a reused substrate.
-
-On the release side, candidate source commit `3b47da9` has a green Security
-workflow run `32693592309` covering exact two-build OCI identity plus
-dependency, secret, image, and SBOM gates. Still missing from the current
-worktree: a customer pilot, customer adjudication, production deployment, a
-published image digest, a trusted candidate attestation, and a held-out v0.2
-result.
-
-QuantCheck makes no claim about alpha, returns, prevented losses, natural SEC
-defect prevalence, vendor-scale coverage, or automatic remediation.
-
-See the [current status](docs/STATUS.md) and
-[authoritative limitations](docs/LIMITATIONS.md).
-
-## Research
-
-The research archive is retained in the current tree:
-
-- [Research paper](docs/research/QUANTCHECK_RESEARCH_PAPER.md)
-- [Public evidence ledger](docs/research/QUANTCHECK_PUBLIC_EVIDENCE_LEDGER.md)
-- [Observational SEC results](docs/research/REAL_DATA_RESULTS.md)
-- [SEC-derived adversarial results](docs/research/REAL_DATA_SUBSTRATE_ADVERSARIAL_RESULTS.md)
-- [Adversarial adjudication](docs/research/REAL_DATA_SUBSTRATE_ADVERSARIAL_ADJUDICATION.md)
-- [Real-data limitations](docs/research/REAL_DATA_LIMITATIONS.md)
-
-For implementation semantics, start with [Methodology](docs/METHODOLOGY.md).
-The [evidence archive](evidence/) holds the saved public and study-scoped
-artifacts. Private truth stays private and is never presented as a public
-performance number.
+If pit-alpha helps your research, [star the repository](https://github.com/rishixgamer/pit-alpha).

@@ -1,0 +1,27 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1120 380" width="1120" height="380" role="img" aria-labelledby="title desc">
+<title id="title">pit-alpha</title><desc id="desc">pit-alpha. Diagram of staggered training, validation, and out-of-sample windows with embargo gaps. The chart is illustrative.</desc>
+<defs>
+ <radialGradient id="light" cx="76%" cy="55%" r="77%"><stop stop-color="#7345a4" stop-opacity=".5"/><stop offset="1" stop-color="#1c1429" stop-opacity="0"/></radialGradient>
+ <pattern id="grid" width="25" height="25" patternUnits="userSpaceOnUse"><path d="M25 0H0V25" fill="none" stroke="#fff" stroke-opacity=".075"/></pattern>
+</defs>
+<rect width="1120" height="380" rx="24" fill="#1c1429"/><rect width="1120" height="380" rx="24" fill="url(#light)"/>
+<rect x="560" y="43" width="518" height="294" rx="12" fill="#111420" fill-opacity=".35" stroke="#fff" stroke-opacity=".15"/><rect x="568" y="49" width="502" height="254" rx="8" fill="url(#grid)"/>
+<g font-family="ui-monospace,SFMono-Regular,Consolas,monospace">
+ <text x="46" y="82" fill="#e1c3ff" font-size="15" font-weight="600" letter-spacing="1.35">PYTHON  /  POLARS  /  QUANTITATIVE RESEARCH</text>
+ 
+  <text x="586" y="78" fill="#d9c7e9" font-size="16" letter-spacing="2.5">WALK-FORWARD WINDOWS</text>
+  <text x="584" y="121" fill="#ccbddd" font-size="16">F1</text><rect x="630" y="102" width="369" height="30" rx="5" fill="#eee7ff" opacity=".055"/><rect x="630" y="102" width="174" height="30" rx="5" fill="#bd91fa" opacity="0.48"/><rect x="810" y="103" width="12" height="28" rx="2" fill="#f5c88c"/><rect x="828" y="102" width="68" height="30" rx="5" fill="#d68fce" opacity=".7"/><rect x="902" y="103" width="12" height="28" rx="2" fill="#f5c88c"/><rect x="920" y="102" width="79" height="30" rx="5" fill="#a7f5dc"/>
+  <text x="584" y="171" fill="#ccbddd" font-size="16">F2</text><rect x="653" y="152" width="369" height="30" rx="5" fill="#eee7ff" opacity=".055"/><rect x="653" y="152" width="174" height="30" rx="5" fill="#bd91fa" opacity="0.57"/><rect x="833" y="153" width="12" height="28" rx="2" fill="#f5c88c"/><rect x="851" y="152" width="68" height="30" rx="5" fill="#d68fce" opacity=".7"/><rect x="925" y="153" width="12" height="28" rx="2" fill="#f5c88c"/><rect x="943" y="152" width="79" height="30" rx="5" fill="#a7f5dc"/>
+  <text x="584" y="221" fill="#ccbddd" font-size="16">F3</text><rect x="676" y="202" width="369" height="30" rx="5" fill="#eee7ff" opacity=".055"/><rect x="676" y="202" width="174" height="30" rx="5" fill="#bd91fa" opacity="0.6599999999999999"/><rect x="856" y="203" width="12" height="28" rx="2" fill="#f5c88c"/><rect x="874" y="202" width="68" height="30" rx="5" fill="#d68fce" opacity=".7"/><rect x="948" y="203" width="12" height="28" rx="2" fill="#f5c88c"/><rect x="966" y="202" width="79" height="30" rx="5" fill="#a7f5dc"/>
+  <text x="584" y="271" fill="#ccbddd" font-size="16">F4</text><rect x="699" y="252" width="369" height="30" rx="5" fill="#eee7ff" opacity=".055"/><rect x="699" y="252" width="174" height="30" rx="5" fill="#bd91fa" opacity="0.75"/><rect x="879" y="253" width="12" height="28" rx="2" fill="#f5c88c"/><rect x="897" y="252" width="68" height="30" rx="5" fill="#d68fce" opacity=".7"/><rect x="971" y="253" width="12" height="28" rx="2" fill="#f5c88c"/><rect x="989" y="252" width="79" height="30" rx="5" fill="#a7f5dc"/>
+  <text x="584" y="325" fill="#d1b0ff" font-size="15">● Train</text>
+  <text x="688" y="325" fill="#f5c88c" font-size="15">● Embargo</text>
+  <text x="811" y="325" fill="#f2afd8" font-size="15">● Validate</text>
+  <text x="938" y="325" fill="#a7f5dc" font-size="15">● Out of sample</text>
+</g>
+<g font-family="system-ui,-apple-system,Segoe UI,sans-serif" fill="#fcf2ff">
+ <text x="41" y="194" font-size="96" font-weight="750" letter-spacing="-6">pit-alpha</text>
+ <text x="47" y="249" font-size="27" font-weight="470" fill="#e1c3ff">Walk-forward research<tspan x="47" dy="36">with timestamped evidence.</tspan></text>
+</g>
+<path d="M47 326h81" stroke="#e1c3ff" stroke-width="3" stroke-linecap="round"/>
+</svg>

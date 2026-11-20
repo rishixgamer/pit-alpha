@@ -1,4 +1,4 @@
-# QuantCheck v1.0 release candidate
+# pit-alpha v1.0 release candidate
 
 `1.0.0rc1` adds timestamp-level factor research through `pit-alpha run` and
 the [Python API](PIT_ALPHA.md#python-api-and-evidence). It ships with a
@@ -20,21 +20,21 @@ preceding revision.
 
 ## Candidate evidence
 
-- [CI runs](https://github.com/rishixgamer/QuantCheck/actions/workflows/ci.yml)
+- [CI runs](https://github.com/rishixgamer/pit-alpha/actions/workflows/ci.yml)
   provide the qualification result and the `quantcheck-pit-alpha-candidate`
   artifact for each revision. The artifact contains the wheel and sdist,
   `SHA256SUMS`, the timed canary suite and benchmark records, and the two
   synthetic reports plus the installed CLI's day-level audit report.
-- [Security runs](https://github.com/rishixgamer/QuantCheck/actions/workflows/security.yml)
+- [Security runs](https://github.com/rishixgamer/pit-alpha/actions/workflows/security.yml)
   provide the matching dependency, secret, and container checks. Compare the
   run's checked-out revision with `candidate_revision` in the benchmark record.
-- Acceptance tickets [#4](https://github.com/rishixgamer/QuantCheck/issues/4),
-  [#5](https://github.com/rishixgamer/QuantCheck/issues/5),
-  [#6](https://github.com/rishixgamer/QuantCheck/issues/6),
-  [#7](https://github.com/rishixgamer/QuantCheck/issues/7),
-  [#8](https://github.com/rishixgamer/QuantCheck/issues/8),
-  [#9](https://github.com/rishixgamer/QuantCheck/issues/9), and
-  [#10](https://github.com/rishixgamer/QuantCheck/issues/10) cover the code,
+- Acceptance tickets [#4](https://github.com/rishixgamer/pit-alpha/issues/4),
+  [#5](https://github.com/rishixgamer/pit-alpha/issues/5),
+  [#6](https://github.com/rishixgamer/pit-alpha/issues/6),
+  [#7](https://github.com/rishixgamer/pit-alpha/issues/7),
+  [#8](https://github.com/rishixgamer/pit-alpha/issues/8),
+  [#9](https://github.com/rishixgamer/pit-alpha/issues/9), and
+  [#10](https://github.com/rishixgamer/pit-alpha/issues/10) cover the code,
   scientific contracts, reports, and candidate qualification.
 
 ## Reproduce qualification
