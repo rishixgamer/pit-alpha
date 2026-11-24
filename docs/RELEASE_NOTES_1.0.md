@@ -81,11 +81,8 @@ uses the matching CI evidence, rebuilds the wheel and sdist, and checks them
 byte for byte before uploading them with the benchmark records, reports,
 checksums, and SBOMs.
 
-If publication stops before attaching any files, rerun the workflow from `main`
-with the existing published tag. It builds from that tag and uses the CI and
-Security runs for the tagged commit. A release with existing attachments requires
-manual verification of its checksums and recovery of any missing files.
-
-```bash
-gh workflow run publish-self-hosted.yml --ref main -f release_tag=v1.0.0
-```
+Rerun the original tag-triggered workflow after a transient failure if there are
+no release attachments. If the tagged workflow needs a code change, recover the
+files from the original qualified build and verify the existing attestations. If
+the release already has attachments, verify their checksums and recover only the
+missing files.

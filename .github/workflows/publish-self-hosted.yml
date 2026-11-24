@@ -3,15 +3,9 @@ name: Publish self-hosted artifacts
 on:
   release:
     types: [published]
-  workflow_dispatch:
-    inputs:
-      release_tag:
-        description: Tag of an existing published release
-        required: true
-        type: string
 
 concurrency:
-  group: self-hosted-publication-${{ github.event.release.tag_name || inputs.release_tag }}
+  group: self-hosted-publication-${{ github.event.release.tag_name }}
   cancel-in-progress: false
 
 permissions:
@@ -24,24 +18,22 @@ permissions:
 
 env:
   REGISTRY: ghcr.io
-  RELEASE_TAG: ${{ github.event.release.tag_name || inputs.release_tag }}
+  RELEASE_TAG: ${{ github.event.release.tag_name }}
 
 jobs:
   publish:
     name: Build, verify, attest, and publish
     runs-on: ubuntu-latest
     steps:
-      - name: Validate the published release
+      - name: Check for existing release attachments
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         shell: bash
         run: |
           [[ "$RELEASE_TAG" == v[0-9]* ]]
-          release=$(gh release view "$RELEASE_TAG" --repo "$GITHUB_REPOSITORY" \
-            --json isDraft,assets --jq '[.isDraft, (.assets | length)] | @tsv')
-          IFS=$'\t' read -r is_draft asset_count <<< "$release"
-          test "$is_draft" = false
-          if [[ "$GITHUB_EVENT_NAME" == workflow_dispatch && "$asset_count" != 0 ]]; then
+          asset_count=$(gh release view "$RELEASE_TAG" --repo "$GITHUB_REPOSITORY" \
+            --json assets --jq '.assets | length')
+          if [[ "$asset_count" != 0 ]]; then
             echo "This release already has attachments. Verify those files before recovering any missing assets." >&2
             exit 1
           fi
@@ -67,9 +59,11 @@ jobs:
           python_bin=$(uv python find 3.12)
           version=$("$python_bin" -c 'import tomllib; print(tomllib.load(open("pyproject.toml", "rb"))["project"]["version"])')
           test "v$version" = "$RELEASE_TAG"
+          revision=$(git rev-parse HEAD)
+          test "$revision" = "$GITHUB_SHA"
           {
             echo "epoch=$(git log -1 --format=%ct)"
-            echo "revision=$(git rev-parse HEAD)"
+            echo "revision=$revision"
             echo "version=$version"
             echo "image=${REGISTRY}/${GITHUB_REPOSITORY,,}-self-hosted"
           } >> "$GITHUB_OUTPUT"
