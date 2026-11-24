@@ -32,11 +32,11 @@ FROM ${PYTHON_IMAGE} AS runtime
 
 ARG SOURCE_DATE_EPOCH=0
 ARG VCS_REF=unknown
-ARG QUANTCHECK_VERSION=1.0.0rc1
+ARG QUANTCHECK_VERSION=1.0.0
 LABEL org.opencontainers.image.title="QuantCheck self-hosted audit runner" \
       org.opencontainers.image.description="Offline, single-tenant financial-data audit batch image" \
       org.opencontainers.image.licenses="MIT" \
-      org.opencontainers.image.source="https://github.com/rishixgamer/quantcheck" \
+      org.opencontainers.image.source="https://github.com/rishixgamer/pit-alpha" \
       org.opencontainers.image.revision="${VCS_REF}" \
       org.opencontainers.image.version="${QUANTCHECK_VERSION}"
 

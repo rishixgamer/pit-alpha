@@ -4,7 +4,7 @@ build-backend = "hatchling.build"
 
 [project]
 name = "quantcheck"
-version = "1.0.0rc1"
+version = "1.0.0"
 description = "Point-in-time factor research and financial data auditing."
 readme = "README.md"
 requires-python = ">=3.12,<3.13"
