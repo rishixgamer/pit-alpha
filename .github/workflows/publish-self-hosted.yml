@@ -238,12 +238,13 @@ jobs:
             --mount "type=bind,src=$smoke_root/bundle/input,dst=/input,readonly" \
             --mount "type=bind,src=$smoke_root/output,dst=/output" \
             --mount "type=bind,src=$smoke_root/work,dst=/work" \
-            "$image" | tee "$smoke_root/structured.log"
+            "$image" > "$smoke_root/structured.log" 2>&1
           test -f "$smoke_root/output/public/runs/xrun_d65eac0fa9d81e72/finalization.json"
           if grep -Eq '100\.25|120\.00|Example Customer Issuer|customer-warehouse|customer://' "$smoke_root/structured.log"; then
             echo "Offline smoke logged a private fixture value." >&2
             exit 1
           fi
+          cat "$smoke_root/structured.log"
           # The non-root container owns subdirectories inside these temporary mounts.
           sudo -n rm -rf -- "$smoke_root/output" "$smoke_root/work"
           test ! -e "$smoke_root/output"
