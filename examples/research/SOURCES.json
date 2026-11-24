@@ -1,0 +1,42 @@
+{
+  "ada": {
+    "url": "https://raw.githubusercontent.com/coinmetrics/data/f1a36afb962731c387bb03982758ab0103063da5/csv/ada.csv",
+    "sha256": "be2809d07b4fc70b2fdaaf5177fabd9d04893d5db85f4280b02d0170ad99a0e8"
+  },
+  "bch": {
+    "url": "https://raw.githubusercontent.com/coinmetrics/data/f1a36afb962731c387bb03982758ab0103063da5/csv/bch.csv",
+    "sha256": "ac397297b3b6481cfd70bfb1c9b36e991deb2a70c50b885f0ed3d68a79aa7423"
+  },
+  "btc": {
+    "url": "https://raw.githubusercontent.com/coinmetrics/data/f1a36afb962731c387bb03982758ab0103063da5/csv/btc.csv",
+    "sha256": "06495ff8e643432e6948b7b4686ce44fc106217287dabdc1b38351d9ddec46c3"
+  },
+  "doge": {
+    "url": "https://raw.githubusercontent.com/coinmetrics/data/f1a36afb962731c387bb03982758ab0103063da5/csv/doge.csv",
+    "sha256": "ab756a42b9c1560dfdba6b1da20eb9a11e6e7263e3df53a7f85ddc45b5b3e0a1"
+  },
+  "eth": {
+    "url": "https://raw.githubusercontent.com/coinmetrics/data/f1a36afb962731c387bb03982758ab0103063da5/csv/eth.csv",
+    "sha256": "46b18f3df967405374b1f6ee8a3d11ee1b7a5b176ac9fb4342caf6bf8648f2cc"
+  },
+  "ltc": {
+    "url": "https://raw.githubusercontent.com/coinmetrics/data/f1a36afb962731c387bb03982758ab0103063da5/csv/ltc.csv",
+    "sha256": "a47defa0eae5c5e39b7f4b4392a309d32daffb271f4cfd8e5d2c915dcc009a6e"
+  },
+  "xlm": {
+    "url": "https://raw.githubusercontent.com/coinmetrics/data/f1a36afb962731c387bb03982758ab0103063da5/csv/xlm.csv",
+    "sha256": "f80c092699a51ac1d7b37f9ebe8e50d3adb03fd2411768eca30bb824211c8d56"
+  },
+  "xmr": {
+    "url": "https://raw.githubusercontent.com/coinmetrics/data/f1a36afb962731c387bb03982758ab0103063da5/csv/xmr.csv",
+    "sha256": "cdb385453105308e4cd690f1496789bcacef8bca2d45d6fc63e10e2ea4f367ed"
+  },
+  "xrp": {
+    "url": "https://raw.githubusercontent.com/coinmetrics/data/f1a36afb962731c387bb03982758ab0103063da5/csv/xrp.csv",
+    "sha256": "251ed578003a742e42e3fb239af5c765903384b4cc42fee6b3872be8a5b0b568"
+  },
+  "zec": {
+    "url": "https://raw.githubusercontent.com/coinmetrics/data/f1a36afb962731c387bb03982758ab0103063da5/csv/zec.csv",
+    "sha256": "90d78b67882d72cc6b3c554a68b330134314abe40e3e99c84e8647749a33d078"
+  }
+}

@@ -27,6 +27,8 @@ when both reports are byte-identical. A different result requires a different
 output directory. An invalid run exits with a nonzero status and diagnostic
 before it publishes either report.
 
+[Weekly crypto momentum study](../examples/research/RESULTS.md) uses historical prices and reports the result after costs and multiple-trial adjustment.
+
 ## Input contracts
 
 Both Parquet tables use a nonblank string `symbol`. Timestamp columns must be

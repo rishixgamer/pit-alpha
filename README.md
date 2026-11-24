@@ -1,6 +1,8 @@
 # pit-alpha
 
-**Test your signal with the data you actually had.** A point-in-time factor research engine with purged walk-forward validation, fold-local fitting, and an auditable post-selection Sharpe check.
+A Python toolkit for factor research. It joins observations by when they became available, removes labels that overlap the next evaluation window, and fits models separately in each fold.
+
+In a study of 10 crypto assets, the selected 28-day momentum rule had a net Sharpe of 0.43 over 182 held-out weeks at 25 basis points per unit of turnover. The adjusted p-value was 0.549, above the study's 0.05 threshold. [Results, data source, and reproduction steps](examples/research/RESULTS.md)
 
 [Try the example](#quickstart) · [Data contract, CLI, and Python API](docs/PIT_ALPHA.md) · [v1.0 release notes](docs/RELEASE_NOTES_1.0.md) · [Project site](https://rishixgamer.github.io/pit-alpha/)
 
@@ -37,5 +39,3 @@ CI installs the wheel and source distribution in separate Python 3.12 environmen
 ---
 
 [GitHub Releases](https://github.com/rishixgamer/pit-alpha/releases) · [MIT License](LICENSE) · [Issues](https://github.com/rishixgamer/pit-alpha/issues)
-
-If pit-alpha helps your research, [star the repository](https://github.com/rishixgamer/pit-alpha).
