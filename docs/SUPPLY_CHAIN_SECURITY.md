@@ -45,8 +45,8 @@ The release workflow requires green CI and Security push runs on the tagged `mai
 It verifies the CI checksums and requires rebuilt Python distributions to match the qualified
 artifacts byte for byte. Python dependencies are resolved through the checked-in `uv.lock`.
 The build uses Python 3.12, Hatchling, a digest-pinned Python base, a digest-pinned `uv` builder,
-a fixed Buildx version, and a
-digest-pinned BuildKit worker. `SOURCE_DATE_EPOCH` is the source commit time; the reproducibility
+a fixed Buildx version, and a digest-pinned BuildKit worker.
+`SOURCE_DATE_EPOCH` is the source commit time. The reproducibility
 gate performs two no-cache BuildKit exports with timestamp rewriting and
 requires identical digest-addressed OCI manifest, config, and layer identity.
 Raw outer-tar header/order or archive-byte differences are reported as
@@ -63,19 +63,19 @@ findings remain inputs to maintainer/customer risk review, not proof of absence.
 
 ## Verify a downloaded package
 
-On a connected verification host, download the release asset, `SHA256SUMS`, and SBOM. Verify the
-digest first, then bind the artifact to this repository and the publishing workflow:
+On a connected verification host, download the release assets and `SHA256SUMS`.
+Verify the digests, then bind the package to this repository and the publishing workflow.
 
 ```bash
 sha256sum --check SHA256SUMS
 
-gh attestation verify quantcheck-<version>-py3-none-any.whl \
-  --repo rishixgamer/quantcheck \
-  --signer-workflow rishixgamer/quantcheck/.github/workflows/publish-self-hosted.yml
+gh attestation verify 'quantcheck-<version>-py3-none-any.whl' \
+  --repo rishixgamer/pit-alpha \
+  --signer-workflow rishixgamer/pit-alpha/.github/workflows/publish-self-hosted.yml
 
-gh attestation verify quantcheck-<version>-py3-none-any.whl \
-  --repo rishixgamer/quantcheck \
-  --signer-workflow rishixgamer/quantcheck/.github/workflows/publish-self-hosted.yml \
+gh attestation verify 'quantcheck-<version>-py3-none-any.whl' \
+  --repo rishixgamer/pit-alpha \
+  --signer-workflow rishixgamer/pit-alpha/.github/workflows/publish-self-hosted.yml \
   --predicate-type https://spdx.dev/Document/v2.3
 ```
 
@@ -88,15 +88,15 @@ it is not a vulnerability-free or certification statement.
 Resolve and record the immutable digest before transfer:
 
 ```bash
-qc_image='ghcr.io/rishixgamer/quantcheck-self-hosted@sha256:<digest>'
+qc_image='ghcr.io/rishixgamer/pit-alpha-self-hosted@sha256:<digest>'
 
 gh attestation verify "oci://$qc_image" \
-  --repo rishixgamer/quantcheck \
-  --signer-workflow rishixgamer/quantcheck/.github/workflows/publish-self-hosted.yml
+  --repo rishixgamer/pit-alpha \
+  --signer-workflow rishixgamer/pit-alpha/.github/workflows/publish-self-hosted.yml
 
 gh attestation verify "oci://$qc_image" \
-  --repo rishixgamer/quantcheck \
-  --signer-workflow rishixgamer/quantcheck/.github/workflows/publish-self-hosted.yml \
+  --repo rishixgamer/pit-alpha \
+  --signer-workflow rishixgamer/pit-alpha/.github/workflows/publish-self-hosted.yml \
   --predicate-type https://spdx.dev/Document/v2.3
 
 docker buildx imagetools inspect "$qc_image" --format '{{ json .Provenance.SLSA }}'
@@ -113,19 +113,19 @@ Before crossing an air gap, obtain the artifact, its attestation bundle, and a f
 set on an online verification host:
 
 ```bash
-gh attestation download quantcheck-<version>-py3-none-any.whl \
-  --repo rishixgamer/quantcheck
+gh attestation download 'quantcheck-<version>-py3-none-any.whl' \
+  --repo rishixgamer/pit-alpha
 gh attestation trusted-root > trusted_root.jsonl
 ```
 
 Transfer those files through the firm's approved channel. Offline:
 
 ```bash
-gh attestation verify quantcheck-<version>-py3-none-any.whl \
-  --repo rishixgamer/quantcheck \
-  --bundle sha256:<artifact-digest>.jsonl \
+gh attestation verify 'quantcheck-<version>-py3-none-any.whl' \
+  --repo rishixgamer/pit-alpha \
+  --bundle 'sha256:<artifact-digest>.jsonl' \
   --custom-trusted-root trusted_root.jsonl \
-  --signer-workflow rishixgamer/quantcheck/.github/workflows/publish-self-hosted.yml
+  --signer-workflow rishixgamer/pit-alpha/.github/workflows/publish-self-hosted.yml
 ```
 
 Import a refreshed trusted root whenever new signed material is introduced. A stale root can miss
