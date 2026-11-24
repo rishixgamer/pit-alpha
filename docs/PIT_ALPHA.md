@@ -209,4 +209,4 @@ floating-point research statistics. The historical audit uses its existing
 Decimal and canonical-string artifact contract.
 
 See [the v1.0 release notes](RELEASE_NOTES_1.0.md) for qualification commands
-and candidate evidence.
+and release evidence.

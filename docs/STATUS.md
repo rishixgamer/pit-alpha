@@ -5,7 +5,7 @@ Day-level audit evidence below was curated on 2026-08-24.
 ## Current classification
 
 QuantCheck is a deterministic research-integrity framework. Package
-`1.0.0rc1` adds the [pit-alpha factor workflow](PIT_ALPHA.md) and its
+`1.0.0` adds the [pit-alpha factor workflow](PIT_ALPHA.md) and its
 [synthetic qualification](RELEASE_NOTES_1.0.md). The day-level audit evidence
 below describes the preceding `0.2.0.dev0` design-partner beta candidate.
 

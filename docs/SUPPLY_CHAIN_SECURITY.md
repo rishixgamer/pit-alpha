@@ -33,15 +33,19 @@ attestation; the cited Security run is the remote candidate scan.
 The self-hosted release workflow publishes these versioned artifacts from one release tag:
 
 - wheel and source distribution;
-- SHA-256 `SHA256SUMS` for the package artifacts and downloadable SBOMs;
+- qualification benchmarks and reports for the released commit;
+- SHA-256 `SHA256SUMS` for the packages, qualification evidence, and downloadable SBOMs;
 - a GHCR image addressed by immutable digest and version/source-SHA tags;
 - SPDX 2.3 JSON SBOMs for packages and the final container;
 - GitHub/Sigstore SLSA-provenance attestations for packages and the image;
 - GitHub/Sigstore SPDX SBOM attestations for packages and the image;
 - BuildKit max-mode provenance and an SBOM attached to the OCI image.
 
-Python dependencies are resolved through the checked-in `uv.lock`. The build uses Python 3.12,
-Hatchling, a digest-pinned Python base, a digest-pinned `uv` builder, a fixed Buildx version, and a
+The release workflow requires green CI and Security push runs on the tagged `main` commit.
+It verifies the CI checksums and requires rebuilt Python distributions to match the qualified
+artifacts byte for byte. Python dependencies are resolved through the checked-in `uv.lock`.
+The build uses Python 3.12, Hatchling, a digest-pinned Python base, a digest-pinned `uv` builder,
+a fixed Buildx version, and a
 digest-pinned BuildKit worker. `SOURCE_DATE_EPOCH` is the source commit time; the reproducibility
 gate performs two no-cache BuildKit exports with timestamp rewriting and
 requires identical digest-addressed OCI manifest, config, and layer identity.
