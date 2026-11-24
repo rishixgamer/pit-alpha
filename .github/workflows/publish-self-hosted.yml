@@ -3,6 +3,16 @@ name: Publish self-hosted artifacts
 on:
   release:
     types: [published]
+  workflow_dispatch:
+    inputs:
+      release_tag:
+        description: Tag of an existing published release
+        required: true
+        type: string
+
+concurrency:
+  group: self-hosted-publication-${{ github.event.release.tag_name || inputs.release_tag }}
+  cancel-in-progress: false
 
 permissions:
   actions: read
@@ -14,16 +24,26 @@ permissions:
 
 env:
   REGISTRY: ghcr.io
+  RELEASE_TAG: ${{ github.event.release.tag_name || inputs.release_tag }}
 
 jobs:
   publish:
     name: Build, verify, attest, and publish
     runs-on: ubuntu-latest
     steps:
+      - name: Validate the published release
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        shell: bash
+        run: |
+          [[ "$RELEASE_TAG" == v[0-9]* ]]
+          gh release view "$RELEASE_TAG" --repo "$GITHUB_REPOSITORY" \
+            --json isDraft --jq '.isDraft | not' | grep -Fx true
+
       - name: Check out the released tag
         uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
         with:
-          ref: ${{ github.event.release.tag_name }}
+          ref: refs/tags/${{ env.RELEASE_TAG }}
           fetch-depth: 0
 
       - name: Install uv
@@ -37,16 +57,16 @@ jobs:
       - name: Validate release identity and build inputs
         id: release
         shell: bash
-        env:
-          RELEASE_TAG: ${{ github.event.release.tag_name }}
         run: |
           python_bin=$(uv python find 3.12)
           version=$("$python_bin" -c 'import tomllib; print(tomllib.load(open("pyproject.toml", "rb"))["project"]["version"])')
           test "v$version" = "$RELEASE_TAG"
-          echo "epoch=$(git log -1 --format=%ct)" >> "$GITHUB_OUTPUT"
-          echo "revision=$(git rev-parse HEAD)" >> "$GITHUB_OUTPUT"
-          echo "version=$version" >> "$GITHUB_OUTPUT"
-          echo "image=${REGISTRY}/${GITHUB_REPOSITORY,,}-self-hosted" >> "$GITHUB_OUTPUT"
+          {
+            echo "epoch=$(git log -1 --format=%ct)"
+            echo "revision=$(git rev-parse HEAD)"
+            echo "version=$version"
+            echo "image=${REGISTRY}/${GITHUB_REPOSITORY,,}-self-hosted"
+          } >> "$GITHUB_OUTPUT"
 
       - name: Sync frozen dependencies
         run: uv sync --frozen --all-groups
@@ -115,7 +135,7 @@ jobs:
         with:
           context: .
           load: true
-          tags: quantcheck-release-candidate:${{ github.sha }}
+          tags: quantcheck-release-candidate:${{ steps.release.outputs.revision }}
           provenance: false
           sbom: false
           build-args: |
@@ -127,7 +147,7 @@ jobs:
         uses: aquasecurity/trivy-action@ed142fd0673e97e23eac54620cfb913e5ce36c25 # v0.36.0
         with:
           scan-type: image
-          image-ref: quantcheck-release-candidate:${{ github.sha }}
+          image-ref: quantcheck-release-candidate:${{ steps.release.outputs.revision }}
           scanners: vuln
           severity: HIGH,CRITICAL
           ignore-unfixed: true
@@ -150,7 +170,7 @@ jobs:
           push: true
           tags: |
             ${{ steps.release.outputs.image }}:${{ steps.release.outputs.version }}
-            ${{ steps.release.outputs.image }}:sha-${{ github.sha }}
+            ${{ steps.release.outputs.image }}:sha-${{ steps.release.outputs.revision }}
           provenance: mode=max
           sbom: true
           build-args: |
@@ -191,8 +211,15 @@ jobs:
         run: |
           image="${{ steps.release.outputs.image }}@${{ steps.image.outputs.digest }}"
           smoke_root=$(mktemp -d)
+          container=""
+          cleanup() {
+            if [[ -n "$container" ]]; then
+              docker rm -f "$container" >/dev/null 2>&1 || true
+            fi
+            sudo -n rm -rf -- "$smoke_root"
+          }
+          trap cleanup EXIT
           container=$(docker create "$image")
-          trap 'docker rm -f "$container" >/dev/null 2>&1 || true; rm -rf "$smoke_root"' EXIT
           docker cp "$container:/opt/quantcheck/smoke/." "$smoke_root/bundle"
           docker rm "$container"
           container=""
@@ -213,15 +240,18 @@ jobs:
             --mount "type=bind,src=$smoke_root/work,dst=/work" \
             "$image" | tee "$smoke_root/structured.log"
           test -f "$smoke_root/output/public/runs/xrun_d65eac0fa9d81e72/finalization.json"
-          ! grep -E '100\.25|120\.00|Example Customer Issuer|customer-warehouse|customer://' "$smoke_root/structured.log"
-          rm -rf "$smoke_root/output" "$smoke_root/work"
+          if grep -Eq '100\.25|120\.00|Example Customer Issuer|customer-warehouse|customer://' "$smoke_root/structured.log"; then
+            echo "Offline smoke logged a private fixture value." >&2
+            exit 1
+          fi
+          # The non-root container owns subdirectories inside these temporary mounts.
+          sudo -n rm -rf -- "$smoke_root/output" "$smoke_root/work"
           test ! -e "$smoke_root/output"
           test ! -e "$smoke_root/work"
 
       - name: Publish packages, qualification evidence, checksums, and SBOMs
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          RELEASE_TAG: ${{ github.event.release.tag_name }}
         run: |
           (cd dist && sha256sum ./*.whl ./*.tar.gz ./*.json ./*.md > SHA256SUMS)
           gh release upload "$RELEASE_TAG" dist/*

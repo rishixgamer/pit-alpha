@@ -80,3 +80,11 @@ The [publication workflow](https://github.com/rishixgamer/pit-alpha/actions/work
 uses the matching CI evidence, rebuilds the wheel and sdist, and checks them
 byte for byte before uploading them with the benchmark records, reports,
 checksums, and SBOMs.
+
+If publication stops after the tag is already public, rerun the workflow from
+`main` with the existing tag. The workflow checks the published release, builds
+from the tag, and uses the CI and Security runs for the tagged commit.
+
+```bash
+gh workflow run publish-self-hosted.yml --ref main -f release_tag=v1.0.0
+```
