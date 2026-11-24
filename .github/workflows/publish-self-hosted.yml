@@ -37,8 +37,14 @@ jobs:
         shell: bash
         run: |
           [[ "$RELEASE_TAG" == v[0-9]* ]]
-          gh release view "$RELEASE_TAG" --repo "$GITHUB_REPOSITORY" \
-            --json isDraft --jq '.isDraft | not' | grep -Fx true
+          release=$(gh release view "$RELEASE_TAG" --repo "$GITHUB_REPOSITORY" \
+            --json isDraft,assets --jq '[.isDraft, (.assets | length)] | @tsv')
+          IFS=$'\t' read -r is_draft asset_count <<< "$release"
+          test "$is_draft" = false
+          if [[ "$GITHUB_EVENT_NAME" == workflow_dispatch && "$asset_count" != 0 ]]; then
+            echo "This release already has attachments. Verify those files before recovering any missing assets." >&2
+            exit 1
+          fi
 
       - name: Check out the released tag
         uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4

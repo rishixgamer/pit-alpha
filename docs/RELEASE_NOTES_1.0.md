@@ -81,9 +81,10 @@ uses the matching CI evidence, rebuilds the wheel and sdist, and checks them
 byte for byte before uploading them with the benchmark records, reports,
 checksums, and SBOMs.
 
-If publication stops after the tag is already public, rerun the workflow from
-`main` with the existing tag. The workflow checks the published release, builds
-from the tag, and uses the CI and Security runs for the tagged commit.
+If publication stops before attaching any files, rerun the workflow from `main`
+with the existing published tag. It builds from that tag and uses the CI and
+Security runs for the tagged commit. A release with existing attachments requires
+manual verification of its checksums and recovery of any missing files.
 
 ```bash
 gh workflow run publish-self-hosted.yml --ref main -f release_tag=v1.0.0
