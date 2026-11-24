@@ -80,3 +80,9 @@ The [publication workflow](https://github.com/rishixgamer/pit-alpha/actions/work
 uses the matching CI evidence, rebuilds the wheel and sdist, and checks them
 byte for byte before uploading them with the benchmark records, reports,
 checksums, and SBOMs.
+
+Rerun the original tag-triggered workflow after a transient failure if there are
+no release attachments. If the tagged workflow needs a code change, recover the
+files from the original qualified build and verify the existing attestations. If
+the release already has attachments, verify their checksums and recover only the
+missing files.
