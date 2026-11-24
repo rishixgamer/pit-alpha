@@ -7,6 +7,7 @@ import platform
 import shutil
 import subprocess
 import sys
+import tomllib
 from pathlib import Path
 from tempfile import TemporaryDirectory
 from time import perf_counter
@@ -73,7 +74,6 @@ def _tests(output: Path) -> None:
     start = perf_counter()
     result = subprocess.run(
         command,
-        check=True,
         timeout=TEST_LIMIT_SECONDS,
         capture_output=True,
         text=True,
@@ -81,6 +81,8 @@ def _tests(output: Path) -> None:
     )
     elapsed = perf_counter() - start
     print(result.stdout, end="")
+    print(result.stderr, end="", file=sys.stderr)
+    result.check_returncode()
     if elapsed >= TEST_LIMIT_SECONDS:
         raise ValueError("pit-alpha tests must finish in under 30 seconds")
     _write_json(
@@ -102,6 +104,7 @@ def _package(python: Path, output: Path) -> None:
     pit_alpha = str(bin_dir / "pit-alpha")
     audit = str(bin_dir / "quantcheck")
     environment = os.environ | THREADS
+    expected_version = tomllib.loads(Path("pyproject.toml").read_text())["project"]["version"]
     with TemporaryDirectory(prefix="quantcheck-qualification-") as location:
         work = Path(location)
         write_example(work / "example")
@@ -129,6 +132,7 @@ def _package(python: Path, output: Path) -> None:
         check = document["selection"]["check"]
         if (
             document["schema_version"] != 1
+            or document["quantcheck_version"] != expected_version
             or len(document["folds"]) != 5
             or combined["decisions"] != 150
             or not check["passes"]
@@ -170,19 +174,24 @@ def _package(python: Path, output: Path) -> None:
             timeout=30,
         )
         (audit_report,) = work.glob("audit/public/cases/*/audit_report.json")
-        subprocess.run(
+        installed = subprocess.check_output(
             [
                 str(python),
                 "-I",
                 "-c",
-                "from quantcheck import pit_alpha\n"
+                "import json, platform\n"
+                "from importlib.metadata import version\n"
+                "from quantcheck import __version__, pit_alpha\n"
                 "for name in ('asof_align', 'PurgedWalkForwardSplit', 'evaluate_signals'):\n"
-                "    assert callable(getattr(pit_alpha, name))",
+                "    assert callable(getattr(pit_alpha, name))\n"
+                "assert __version__ == version('quantcheck') == "
+                f"{expected_version!r}\n"
+                "print(json.dumps({'python': platform.python_version()}))",
             ],
             cwd=work,
             env=environment,
-            check=True,
             timeout=30,
+            text=True,
         )
 
         output.mkdir(parents=True, exist_ok=True)
@@ -195,7 +204,7 @@ def _package(python: Path, output: Path) -> None:
                 "candidate_revision": _revision(),
                 "candidate_version": document["quantcheck_version"],
                 "command": ["pit-alpha", *command[1:]],
-                "environment": _environment(),
+                "environment": _environment() | json.loads(installed),
                 "fixture": {
                     "seed": EXAMPLE_SEED,
                     "symbols": EXAMPLE_SYMBOLS,

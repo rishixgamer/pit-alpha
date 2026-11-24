@@ -694,7 +694,7 @@ from quantcheck.unit_drift_series import (
     comparable_series_key,
 )
 
-__version__ = "1.0.0rc1"
+__version__ = "1.0.0"
 
 __all__ = [
     "ArtifactIntegrityError",

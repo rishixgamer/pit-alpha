@@ -111,7 +111,7 @@ live network request.
 
 ## Run timestamp-level factor research
 
-The `1.0.0rc1` candidate includes a seeded market-data example and
+Version `1.0.0` includes a seeded market-data example and
 `pit-alpha run --config path.yaml`, which produces JSON and Markdown with
 walk-forward metrics and selection evidence. See the
 [pit-alpha quickstart](PIT_ALPHA.md) and

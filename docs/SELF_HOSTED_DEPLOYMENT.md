@@ -75,7 +75,7 @@ root filesystem is read-only, all Linux capabilities are dropped, privilege esca
 and networking is disabled in the recommended invocation:
 
 ```bash
-qc_image='ghcr.io/rishixgamer/quantcheck-self-hosted@sha256:<verified-digest>'
+qc_image='ghcr.io/rishixgamer/pit-alpha-self-hosted@sha256:<verified-digest>'
 qc_config_dir='/approved/quantcheck/config'
 qc_input_dir='/approved/quantcheck/input'
 qc_output_dir='/approved/quantcheck/output'

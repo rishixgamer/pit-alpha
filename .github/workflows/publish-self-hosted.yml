@@ -37,10 +37,12 @@ jobs:
       - name: Validate release identity and build inputs
         id: release
         shell: bash
+        env:
+          RELEASE_TAG: ${{ github.event.release.tag_name }}
         run: |
           python_bin=$(uv python find 3.12)
           version=$("$python_bin" -c 'import tomllib; print(tomllib.load(open("pyproject.toml", "rb"))["project"]["version"])')
-          test "v$version" = "${{ github.event.release.tag_name }}"
+          test "v$version" = "$RELEASE_TAG"
           echo "epoch=$(git log -1 --format=%ct)" >> "$GITHUB_OUTPUT"
           echo "revision=$(git rev-parse HEAD)" >> "$GITHUB_OUTPUT"
           echo "version=$version" >> "$GITHUB_OUTPUT"
@@ -49,8 +51,33 @@ jobs:
       - name: Sync frozen dependencies
         run: uv sync --frozen --all-groups
 
-      - name: Build wheel and source distribution offline
-        run: uv build --offline
+      - name: Fetch qualification evidence for the released revision
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          REVISION: ${{ steps.release.outputs.revision }}
+        run: |
+          for workflow in security.yml ci.yml; do
+            run_id=$(gh run list --workflow "$workflow" --branch main --commit "$REVISION" \
+              --event push --status success --limit 1 --json databaseId --jq '.[] | .databaseId')
+            if [[ -z "$run_id" ]]; then
+              echo "No successful $workflow main run for $REVISION" >&2
+              exit 1
+            fi
+            echo "Qualified by https://github.com/$GITHUB_REPOSITORY/actions/runs/$run_id"
+          done
+          gh run download "$run_id" --name quantcheck-pit-alpha-candidate --dir "$RUNNER_TEMP/qualified"
+          (cd "$RUNNER_TEMP/qualified" && sha256sum --check SHA256SUMS)
+
+      - name: Rebuild the distributions and match the qualified bytes
+        env:
+          SOURCE_DATE_EPOCH: ${{ steps.release.outputs.epoch }}
+        run: |
+          uv build --offline --no-build-isolation
+          uv run --locked python scripts/check_distribution_contents.py dist
+          for distribution in dist/*.whl dist/*.tar.gz; do
+            cmp "$distribution" "$RUNNER_TEMP/qualified/${distribution##*/}"
+          done
+          cp "$RUNNER_TEMP/qualified/"*.json "$RUNNER_TEMP/qualified/"*.md dist/
 
       - name: Generate package SPDX 2.3 SBOM
         uses: anchore/sbom-action@e22c389904149dbc22b58101806040fa8d37a610 # v0.24.0
@@ -191,12 +218,13 @@ jobs:
           test ! -e "$smoke_root/output"
           test ! -e "$smoke_root/work"
 
-      - name: Publish package, checksums, and downloadable SBOMs
+      - name: Publish packages, qualification evidence, checksums, and SBOMs
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          RELEASE_TAG: ${{ github.event.release.tag_name }}
         run: |
-          (cd dist && sha256sum quantcheck-*.whl quantcheck-*.tar.gz *.spdx.json > SHA256SUMS)
-          gh release upload "${{ github.event.release.tag_name }}" dist/*
+          (cd dist && sha256sum ./*.whl ./*.tar.gz ./*.json ./*.md > SHA256SUMS)
+          gh release upload "$RELEASE_TAG" dist/*
 
       - name: Retain release artifacts in the workflow record
         uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4

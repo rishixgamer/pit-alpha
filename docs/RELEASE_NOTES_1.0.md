@@ -1,33 +1,43 @@
-# pit-alpha v1.0 release candidate
+# pit-alpha v1.0.0
 
-`1.0.0rc1` adds timestamp-level factor research through `pit-alpha run` and
+`1.0.0` adds timestamp-level factor research through `pit-alpha run` and
 the [Python API](PIT_ALPHA.md#python-api-and-evidence). It ships with a
 seeded synthetic Parquet example, deterministic JSON and Markdown reports,
-and a holdout Sharpe check. The supporting day-level audit remains available
-through `quantcheck`. The immutable v0.1 release and v0.2 research evidence
-keep their original versions and results.
+and a holdout Sharpe check. The `quantcheck` distribution provides both
+`pit-alpha` and the existing `quantcheck` day-level audit CLI. The example
+measures the workflow on synthetic data.
 
-The candidate supports Python 3.12. Its reference qualification uses Linux
-with frozen uv dependencies, a locked Hatchling build, one OpenBLAS thread,
+The supported runtime is Python 3.12. Reference qualification uses Linux
+with uv 0.12.2, frozen dependencies, a locked Hatchling build, one OpenBLAS thread,
 and two Polars threads. The fixture uses 24 symbols, 241 decision instants,
 5,784 rows per input table, five trials, five OOS folds, and 150 OOS periods.
 The timed workflow includes reading both Parquet inputs, research execution,
 and writing both report formats.
 
-The candidate also updates the locked Certifi trust bundle and the pinned
-Python 3.12.16 Bookworm base to pick up security fixes detected on the
-preceding revision.
+## Install
 
-## Candidate evidence
+Download `quantcheck-1.0.0-py3-none-any.whl` and `SHA256SUMS` from the
+[`v1.0.0` GitHub release](https://github.com/rishixgamer/pit-alpha/releases).
+Run these commands from the download directory with a Python 3.12 virtual
+environment active.
 
-- [CI runs](https://github.com/rishixgamer/pit-alpha/actions/workflows/ci.yml)
-  provide the qualification result and the `quantcheck-pit-alpha-candidate`
-  artifact for each revision. The artifact contains the wheel and sdist,
-  `SHA256SUMS`, the timed canary suite and benchmark records, and the two
-  synthetic reports plus the installed CLI's day-level audit report.
-- [Security runs](https://github.com/rishixgamer/pit-alpha/actions/workflows/security.yml)
-  provide the matching dependency, secret, and container checks. Compare the
-  run's checked-out revision with `candidate_revision` in the benchmark record.
+```bash
+sha256sum --ignore-missing --check SHA256SUMS && \
+  python -m pip install ./quantcheck-1.0.0-py3-none-any.whl
+pit-alpha example --directory ./example-run
+pit-alpha run --config ./example-run/example.yaml
+```
+
+## Release evidence
+
+- The [CI workflow](https://github.com/rishixgamer/pit-alpha/actions/workflows/ci.yml)
+  produces `quantcheck-pit-alpha-candidate` for each successful run. It contains
+  the wheel and sdist, `SHA256SUMS`, a timed unit and canary result, separate
+  wheel and sdist benchmark records, both synthetic reports, and a day-level
+  audit report.
+- Match `candidate_revision` in the benchmark records to the source commit in
+  the [Security workflow](https://github.com/rishixgamer/pit-alpha/actions/workflows/security.yml)
+  for dependency, secret, and container verification.
 - Acceptance tickets [#4](https://github.com/rishixgamer/pit-alpha/issues/4),
   [#5](https://github.com/rishixgamer/pit-alpha/issues/5),
   [#6](https://github.com/rishixgamer/pit-alpha/issues/6),
@@ -39,30 +49,34 @@ preceding revision.
 
 ## Reproduce qualification
 
-Run from the candidate checkout on Linux with uv and Python 3.12:
+Run from the release checkout on Linux with uv 0.12.2 and Python 3.12. Use an
+empty `dist/` directory.
 
 ```bash
 uv sync --frozen --all-groups
-uv run python -m scripts.qualify_pit_alpha test --output dist/pit-alpha-tests.json
-uv run ruff check .
-uv run ruff format --check .
-uv run mypy src tests
-uv run pytest
-SOURCE_DATE_EPOCH="$(git log -1 --format=%ct)" uv build --offline --no-build-isolation
-uv run python scripts/check_distribution_contents.py dist
-
-candidate_dir="$(mktemp -d)"
-uv venv --python 3.12 "$candidate_dir/venv"
-uv export --locked --no-dev --no-emit-project --format requirements-txt > "$candidate_dir/requirements.txt"
-uv pip sync --require-hashes --python "$candidate_dir/venv/bin/python" "$candidate_dir/requirements.txt"
-uv pip install --python "$candidate_dir/venv/bin/python" --no-deps --offline dist/quantcheck-*.whl
-uv run python -m scripts.qualify_pit_alpha package --python "$candidate_dir/venv/bin/python" --output dist
-(cd dist && sha256sum *.whl *.tar.gz *.json *.md > SHA256SUMS && sha256sum --check SHA256SUMS)
+uv lock --check
+uv run --locked ruff check .
+uv run --locked ruff format --check .
+uv run --locked mypy src tests
+uv run --locked python -m scripts.qualify_pit_alpha test --output dist/pit-alpha-tests.json
+uv run --locked pytest
+bash scripts/qualify_pit_alpha_distributions.sh dist
 ```
 
 The benchmark record captures the revision, execution environment, fixture
 dimensions, trial and fold counts, elapsed time, peak RSS, and report schema.
-The checks require the focused tests to finish in under 30 seconds and
-the full reference run to finish in under 60 seconds at under 2 GB peak RSS.
-The installed-candidate smoke check compares both reports byte for byte across
-two runs, runs the existing audit CLI, and imports the three public factor APIs.
+The checks require the focused tests to finish in under 30 seconds and each
+full reference run to finish in under 60 seconds at under 2 GB peak RSS. Each
+clean install reproduces both factor reports, runs the existing audit CLI,
+and imports all three public factor APIs. Both installs must produce identical
+reports.
+
+## Prepare the GitHub release
+
+After merging, verify that the CI and Security push runs both passed for the
+same `main` commit. Create `v1.0.0` at that exact revision. Include the CI run,
+Security run, and qualification artifact links in the release description.
+The [publication workflow](https://github.com/rishixgamer/pit-alpha/actions/workflows/publish-self-hosted.yml)
+uses the matching CI evidence, rebuilds the wheel and sdist, and checks them
+byte for byte before uploading them with the benchmark records, reports,
+checksums, and SBOMs.
